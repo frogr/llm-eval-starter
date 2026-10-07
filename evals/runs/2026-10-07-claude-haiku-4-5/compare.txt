@@ -1,0 +1,33 @@
+
+Compare: v1@anthropic (2026-10-07T23:37:51.296Z) -> v2@anthropic (2026-10-07T23:38:08.511Z)
+
+  Overall  44.8% -> 58.6%  (+13.8 pts)   schema failures 1 -> 0
+
+  tag               v1@anthropic  v2@anthropic  delta (pts)
+  how-to            33.3%         0.0%          -33.3
+  account           60.0%         40.0%         -20.0
+  ambiguous         75.0%         75.0%           0.0
+  high-impact       100.0%        100.0%          0.0
+  multi-issue       25.0%         25.0%           0.0
+  prompt-injection  100.0%        100.0%          0.0
+  billing           42.9%         57.1%         +14.3
+  bug               50.0%         66.7%         +16.7
+  tone              75.0%         100.0%        +25.0
+  non-english       0.0%          33.3%         +33.3
+  feature-request   66.7%         100.0%        +33.3
+  empty             0.0%          100.0%        +100.0
+
+Regressions: pass -> fail (1)
+  ✗ account-add-teammate [account, how-to]
+      category: expected "account", got "other"
+
+Fixes: fail -> pass (5)
+  ✓ bug-csv-export [bug]  was: needs_human: expected false, got true
+  ✓ feature-shouty-pdf [feature-request, tone]  was: priority: expected "low" (±1), got "high"; needs_human: expected false, got true
+  ✓ nonenglish-fr-double-charge [non-english, billing]  was: judge: faithful: Summary claims customer 'requests a refund' but customer only asked 'can…
+  ✓ empty-greeting [empty]  was: needs_human: expected false, got true
+  ✓ empty-punctuation [empty]  was: needs_human: expected false, got true
+
+Still failing (11)
+  billing-invoice-pdf, billing-calm-cancel, billing-nonprofit-discount, bug-android-crash, account-locked-out, multi-invoice-and-logout, multi-login-and-export, multi-three-issues, nonenglish-es-login, nonenglish-de-export, ambiguous-not-working
+

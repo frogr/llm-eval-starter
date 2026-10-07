@@ -66,6 +66,21 @@ Responses are cached in `.cache/`, so re-running after editing a grader or the r
 
 A note on the mock: it is a keyword classifier with deliberate failure modes, and it reacts to a few specific phrases in the v1/v2 prompts. It exists so the harness can run in CI and in this README without a key. It does not evaluate your prompts. Once you edit `src/feature.ts`, use a real provider.
 
+### What a real model did, once
+
+On 2026-10-07 both prompts ran against `claude-haiku-4-5` (judge: the same model), one run each, no cache. The reports and the compare output are in `evals/runs/2026-10-07-claude-haiku-4-5/`.
+
+| | v1 | v2 |
+| --- | --- | --- |
+| Overall | 13/29 (44.8%) | 17/29 (58.6%) |
+| Schema failures | 1 | 0 |
+| Gate | fail | fail |
+| Tokens | 3,581 in / 1,834 out | 9,352 in / 1,544 out |
+| Cost (triage + judge) | $0.03 | $0.04 |
+| Latency p50 / p95 | 863 / 1130 ms | 782 / 833 ms |
+
+v2 fixed five cases and broke one (`account-add-teammate`, now categorized as `other`). Eleven cases fail under both prompts, and most of them fail the same way: the model sets `needs_human: true` on tickets the golden set says it should handle alone (the empty greeting, the German export bug, a routine locked-out account). That is a real disagreement between the labels and the model, and it is the kind of thing this harness exists to surface. Neither prompt was written for this model, so treat the numbers as a baseline, not a verdict. The point is that the gate held: a prompt that looks fine on the mock does not get to merge on a real model.
+
 ## Adapting it to your own feature
 
 1. **Define the output.** Edit `src/types.ts` (`Triage`, `GoldenCase`) to describe what your feature returns and what a correct answer looks like.
