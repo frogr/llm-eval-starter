@@ -123,7 +123,7 @@ test/                   vitest: graders, cache keys, gating, compare, end-to-end
 
 **CI gates.** `evals/thresholds.json` sets floors: overall pass rate, a minimum for every tag (so a strong average can't hide a collapsed category), per-tag overrides (`prompt-injection` must be 100%), and a maximum number of schema failures (usually zero, since unparseable output is an outage). `npm run eval` exits 1 when any floor is violated, which fails the CI job. `npm run compare -- <before> <after> --fail-on-regression` exits 1 if any case went from pass to fail.
 
-**Cost and latency.** Every run records p50/p95 latency, token counts and estimated cost (from a small price table in `src/providers/index.ts`; unknown models show `n/a` instead of a guess). In the demo, v2's longer prompt nearly triples input tokens. That is a real trade-off and it belongs in the same report as the quality numbers.
+**Cost and latency.** Every run records p50/p95 latency, token counts and estimated cost (from a small price table in `src/providers/index.ts`; unknown models show `n/a` instead of a guess). In the demo, v2's longer prompt nearly triples input tokens: 3,454 for v1 against 9,745 for v2 across the 29 cases, as the mock provider counts them. That is a real trade-off and it belongs in the same report as the quality numbers.
 
 ## CLI reference
 
@@ -152,15 +152,7 @@ Exit codes: `0` pass, `1` gate failed or regression found, `2` usage or setup er
 
 ## Going further
 
-This starter covers the core loop. The full course goes into the parts that take longer to get right in production:
-
-- Curating and growing a golden set from production logs
-- Calibrating an LLM judge against human labels, and knowing when to trust it
-- Autonomy gating: routing low-confidence outputs to a human instead of shipping them
-- The same harness in Ruby on Rails
-- Tracing cost and latency per feature in production
-
-The course is [Evals in Production](https://austn.net/courses/evals-in-production).
+This repo is the first step of my course, [Evals in Production](https://austn.net/courses/evals-in-production), which covers golden sets from production logs, calibrating a judge, autonomy gating, cost and latency, and evals in CI.
 
 ## License
 
