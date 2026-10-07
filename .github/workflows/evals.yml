@@ -1,0 +1,46 @@
+name: evals
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
+      # Offline demo mode: no API key needed, deterministic, free.
+      # The eval exits 1 if evals/thresholds.json is violated, failing the job.
+      - name: Eval (mock provider)
+        run: npm run eval -- --prompt v2 --provider mock
+
+      # To gate on a real model instead, add the secret and swap the step above:
+      #
+      # - name: Eval (Anthropic)
+      #   env:
+      #     ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      #   run: npm run eval -- --prompt v2 --provider anthropic
+      #
+      # Consider caching .cache/ between runs (actions/cache keyed on
+      # evals/golden.jsonl and src/feature.ts) so unchanged cases are not re-billed.
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-report-node${{ matrix.node }}
+          path: reports/

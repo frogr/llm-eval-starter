@@ -1,0 +1,28 @@
+{
+  "name": "llm-eval-starter",
+  "version": "0.1.0",
+  "description": "A small, readable starter kit for evaluating LLM features: golden sets, graders, regression compare, CI gates.",
+  "license": "MIT",
+  "author": "Austin French (https://austn.net)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/frogr/llm-eval-starter"
+  },
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "eval": "tsx src/cli/eval.ts",
+    "compare": "tsx src/cli/compare.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.11"
+  }
+}
