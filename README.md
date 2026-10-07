@@ -82,7 +82,7 @@ A note on the mock: it is a keyword classifier with deliberate failure modes, an
 
 ```
 evals/
-  golden.jsonl          29 hand-written cases: input, expected fields, tags, notes
+  golden.jsonl          29 synthetic cases: input, expected fields, tags, notes
   thresholds.json       gate floors (overall, per tag, schema failures)
 src/
   feature.ts            the feature under test: prompts v1 and v2, request builder, strict parser
@@ -160,7 +160,7 @@ This starter covers the core loop. The full course goes into the parts that take
 - The same harness in Ruby on Rails
 - Tracing cost and latency per feature in production
 
-<!-- COURSE_LINK -->
+The course is [Evals in Production](https://austn.net/courses/evals-in-production).
 
 ## License
 
