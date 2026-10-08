@@ -25,7 +25,8 @@ export function createAnthropicProvider(model: string): Provider {
         {
           model,
           max_tokens: req.maxTokens,
-          temperature: req.temperature,
+          // No temperature: current Claude models reject sampling overrides, so the
+          // request's temperature is a cache-key input here, not something sent.
           system: req.system,
           messages: [{ role: "user", content: req.user }],
         },

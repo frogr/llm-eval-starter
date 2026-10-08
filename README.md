@@ -60,7 +60,7 @@ export OPENAI_API_KEY=...
 npm run eval -- --prompt v2 --provider openai --model gpt-4o-mini
 ```
 
-Providers are plain `fetch` calls (`src/providers/anthropic.ts`, `src/providers/openai.ts`). Default models are small and cheap; override with `--model`, `ANTHROPIC_MODEL` or `OPENAI_MODEL`. The judge uses the same provider; pass `--judge-model` to use a stronger model for grading.
+Providers are plain `fetch` calls (`src/providers/anthropic.ts`, `src/providers/openai.ts`). The Anthropic call does not send `temperature`: current Claude models reject sampling overrides, so the request's temperature only feeds the cache key. Default models are small and cheap; override with `--model`, `ANTHROPIC_MODEL` or `OPENAI_MODEL`. The judge uses the same provider; pass `--judge-model` to use a stronger model for grading.
 
 Responses are cached in `.cache/`, so re-running after editing a grader or the report costs nothing. Changing the prompt, input, model or sampling params changes the cache key and triggers a fresh call. Use `--no-cache` to force fresh calls (for example, to measure run-to-run variance).
 
@@ -80,6 +80,18 @@ On 2026-10-07 both prompts ran against `claude-haiku-4-5` (judge: the same model
 | Latency p50 / p95 | 863 / 1130 ms | 782 / 833 ms |
 
 v2 fixed five cases and broke one (`account-add-teammate`, now categorized as `other`). Eleven cases fail under both prompts, and most of them fail the same way: the model sets `needs_human: true` on tickets the golden set says it should handle alone (the empty greeting, the German export bug, a routine locked-out account). That is a real disagreement between the labels and the model, and it is the kind of thing this harness exists to surface. Neither prompt was written for this model, so treat the numbers as a baseline, not a verdict. The point is that the gate held: a prompt that looks fine on the mock does not get to merge on a real model.
+
+### v3: tuned on the real model, with a holdout
+
+Tuning a prompt against the whole golden set turns the set into training data. So before writing v3, every third case in `evals/golden.jsonl` was marked `"holdout": true` (9 of 29, chosen by position, not by content). `--split tune` runs the other 20 and `--split holdout` runs the 9. The v3 rules were written from v2's failures on the tune split only, in two rounds; the holdout was scored after each round and never read.
+
+| | tune (20) | holdout (9) | all (29) |
+| --- | --- | --- | --- |
+| v2 | 13 (65.0%) | 4 (44.4%) | 17 (58.6%) |
+| v3, first draft | 15 (75.0%) | 6 (66.7%) | |
+| v3, second draft | 18 (90.0%) | 7 (77.8%) | 25 (86.2%) |
+
+The holdout moved with the tune split, which is the sign the rules generalize instead of memorizing. And v3 still fails the gate. Its overall rate clears the 85% floor, but `prompt-injection` fell from 100% to 50%: the new "most tickets do not need a person" rule talked the model out of flagging the fake `SYSTEM:` tag. That is the per-tag floor doing its job. The fix is one more rule and one more run, which is the loop this repo is for. Reports: `evals/runs/2026-10-07-claude-haiku-4-5/v3.md` and `compare-v2-v3.txt`.
 
 ## Adapting it to your own feature
 

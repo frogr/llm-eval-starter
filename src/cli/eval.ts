@@ -23,6 +23,7 @@ const HELP = `Usage: npm run eval -- [options]
   --golden <path>      Golden set (default: evals/golden.jsonl)
   --thresholds <path>  Gate thresholds (default: evals/thresholds.json)
   --tag <tag>          Only run cases with this tag
+  --split <s>          all | tune | holdout: cases marked "holdout" in the golden set are for scoring only (default: all)
   --concurrency <n>    Parallel requests (default: 4)
   --attempts <n>       Attempts per request, including the first (default: 3)
   --no-cache           Ignore and don't write .cache/
@@ -39,6 +40,7 @@ async function main(): Promise<number> {
       golden: { type: "string", default: "evals/golden.jsonl" },
       thresholds: { type: "string", default: "evals/thresholds.json" },
       tag: { type: "string" },
+      split: { type: "string", default: "all" },
       concurrency: { type: "string", default: "4" },
       attempts: { type: "string", default: "3" },
       "no-cache": { type: "boolean", default: false },
@@ -78,6 +80,12 @@ async function main(): Promise<number> {
 
   let cases = await loadGolden(values.golden);
   if (values.tag) cases = cases.filter((x) => x.tags.includes(values.tag!));
+  if (values.split === "tune") cases = cases.filter((x) => !x.holdout);
+  else if (values.split === "holdout") cases = cases.filter((x) => x.holdout);
+  else if (values.split !== "all") {
+    console.error(`unknown split "${values.split}". Expected all, tune or holdout`);
+    return 2;
+  }
   if (!cases.length) {
     console.error("no cases to run");
     return 2;
@@ -103,7 +111,7 @@ async function main(): Promise<number> {
   if (process.stderr.isTTY) process.stderr.write("\r\x1b[K");
 
   // Gating a filtered run against global thresholds would be misleading.
-  const gate = values["no-gate"] || values.tag ? null : checkThresholds(run.summary, await loadThresholds(values.thresholds));
+  const gate = values["no-gate"] || values.tag || values.split !== "all" ? null : checkThresholds(run.summary, await loadThresholds(values.thresholds));
 
   console.log(renderTerminal(run, gate));
   const path = await writeReports(run, gate, "reports");

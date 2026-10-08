@@ -33,6 +33,8 @@ export function createProvider(name: string, model?: string): Provider {
 const PRICING_PER_MTOK: Record<string, [number, number]> = {
   "mock-triage-1": [0, 0],
   "claude-haiku-4-5": [1, 5],
+  "claude-haiku-5-5": [0.1, 0.5],
+  "claude-sonnet-5-5": [2, 10],
   "gpt-4o-mini": [0.15, 0.6],
 };
 

@@ -30,6 +30,8 @@ export interface GoldenCase {
     summary_must_mention?: string[];
   };
   tags: string[];
+  /** Never looked at while tuning a prompt. Run with --split holdout to score it. */
+  holdout?: boolean;
   notes?: string;
 }
 
